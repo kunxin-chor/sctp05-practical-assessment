@@ -3,6 +3,7 @@ import Navbar from './Navbar';
 import HomePage from './HomePage'
 import ProductPage from './ProductPage'
 import RegisterPage from './RegisterPage'
+import ShoppingCart from './ShoppingCart';
 import { Route, Switch } from 'wouter';
 
 import { useFlashMessage } from './FlashMessageStore';
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="/" component={HomePage} />
         <Route path="/products" component={ProductPage}/>
         <Route path="/register" component={RegisterPage}/>
+        <Route path="/cart" component={ShoppingCart}/>
       </Switch>
 
 
