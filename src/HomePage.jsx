@@ -1,7 +1,37 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import ProductCard from './ProductCard'
+import axios from 'axios'
 
 export default function HomePage() {
+
+    const [featuredProducts, setFeaturedProducts] = useState([]);
+
+    // effect: when the component is mounted for the first time, read in the featured
+    // products
+    useEffect(() => {
+
+        const fetchData = async () => {
+            const response = await axios.get('featured.json');
+            setFeaturedProducts(response.data);
+        }
+        fetchData();
+
+    }, []);
+
+    const renderProducts = () => {
+        const products = [];
+        for (let p of featuredProducts) {
+            products.push(<div className="col-md-3 mb-4" key={p.id}>
+                <ProductCard
+                    imageUrl={p.image}
+                    productName={p.name}
+                    price={p.price}
+                />
+            </div>);
+        }
+        return products;
+    }
+
     return (<>
         <header className="bg-primary text-white text-center py-5">
             <div className="container">
@@ -14,37 +44,12 @@ export default function HomePage() {
         <main className="container my-5">
             <h2 className="text-center mb-4">Featured Products</h2>
             <div className="row">
-                <div className="col-md-3 mb-4">
-                    <ProductCard
-                        imageUrl="https://picsum.photos/id/20/300/200"
-                        productName="Product 1"
-                        price={19.99}
-                    />
-                </div>
-                <div className="col-md-3 mb-4">
-                    <ProductCard
-                        imageUrl="https://picsum.photos/id/1/300/200"
-                        productName="Product 2"
-                        price={29.99}
+                {
+                    renderProducts()
+                }
 
-                    />
-                </div>
-                <div className="col-md-3 mb-4">
-                    <ProductCard
-                        imageUrl="https://picsum.photos/id/26/300/200"
-                        productName="Product 3"
-                        price={39.99}
 
-                    />
-                </div>
-                <div className="col-md-3 mb-4">
-                    <ProductCard
-                        imageUrl="https://picsum.photos/id/96/300/200"
-                        productName="Product 4"
-                        price={49.99}
-
-                    />
-                </div>
+               
             </div>
         </main>
     </>)

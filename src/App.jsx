@@ -1,15 +1,41 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import HomePage from './HomePage'
 import ProductPage from './ProductPage'
 import RegisterPage from './RegisterPage'
 import { Route, Switch } from 'wouter';
 
+import { useFlashMessage } from './FlashMessageStore';
+
 export default function App() {
+
+  const {getMessage, showMessage, clearMessage} = useFlashMessage();
+  const flashMessage = getMessage();
+
+  useEffect(()=>{
+    const timer = setTimeout(()=>{
+      clearMessage();
+    }, 3000);
+
+    // the return of the effect function is another function
+    // that performs cleanup
+    return ()=>{
+      clearTimeout(timer)
+    }
+
+  }, [flashMessage]); // the effect will trigger whenver the flashMessage value is changed
 
   return (
     <>
       <Navbar />
+      {
+        flashMessage.message && 
+        <div className={`alert alert-${flashMessage.type} text-center flash-alert`}
+          role="alert"
+        >
+          {flashMessage.message}
+        </div>
+      }
 
       {/* Any JSX in the switch now be part of the pages */}
       <Switch>

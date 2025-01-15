@@ -2,7 +2,14 @@ import React from 'react'
 import { Formik, Field, Form } from 'formik';  // import * as F from 'formik' --> can use F.Field, F.Form, F.Formik
 import * as Yup from 'yup'; // const Yup = require('yup')
 
+import { useFlashMessage } from './FlashMessageStore';
+import { useLocation } from 'wouter';
+
 export default function RegisterPage() {
+
+    const {getMessage, showMessage, clearMessage} = useFlashMessage();
+
+    const [,setLocation] = useLocation();
 
     const initialValues = {
         name: "",
@@ -30,10 +37,9 @@ export default function RegisterPage() {
     // formikHelpers is a utiltiy object that contains functions to manage forms
     const handleSubmit = (values, formikHelpers) => {
         console.log(values);
-        // simulate submiting to a RESTFul API
-        setTimeout(function(){
-            formikHelpers.setSubmitting(false);
-        }, 2000);
+        formikHelpers.setSubmitting(false);
+        showMessage("Registeration is successful!", "success");
+        setLocation('/');
      
     }
 
