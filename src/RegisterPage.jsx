@@ -5,6 +5,8 @@ import * as Yup from 'yup'; // const Yup = require('yup')
 import { useFlashMessage } from './FlashMessageStore';
 import { useLocation } from 'wouter';
 
+import axios from 'axios';
+
 export default function RegisterPage() {
 
     const {getMessage, showMessage, clearMessage} = useFlashMessage();
@@ -35,12 +37,24 @@ export default function RegisterPage() {
 
     // values will contain the values from the form
     // formikHelpers is a utiltiy object that contains functions to manage forms
-    const handleSubmit = (values, formikHelpers) => {
-        console.log(values);
-        formikHelpers.setSubmitting(false);
-        showMessage("Registeration is successful!", "success");
-        setLocation('/');
+    const handleSubmit = async  (values, formikHelpers) => {
+        // console.log(values);
+        // formikHelpers.setSubmitting(false);
+        // showMessage("Registeration is successful!", "success");
+        // setLocation('/');
      
+        try {
+            const response = await axios.post(import.meta.env.VITE_API_URL+"/api/users/register",values);
+            showMessage("Registeration is successful!", "success");
+            setLocation('/');
+        } catch (e) {
+            console.error("Register error:", e);
+            showMessage("Error logging in", "error");
+        } finally {
+            formikHelpers.setSubmitting(false)
+            setLocation("/");
+        }
+
     }
 
     return (
