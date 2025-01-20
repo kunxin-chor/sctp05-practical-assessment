@@ -1,12 +1,12 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 // The useLocation hooks allows us to get the current URL of the router
-import {Link, useLocation} from 'wouter';
+import { Link, useLocation } from 'wouter';
 
 export default function Navbar() {
 
     const [isNavBarShowing, setIsNavBarShowing] = useState(false);
     const [location] = useLocation(); // location will contain the current URL of the router
-  
+
     const toggleNavbar = () => {
         setIsNavBarShowing(!isNavBarShowing);
     }
@@ -29,19 +29,22 @@ export default function Navbar() {
                     <div className={`collapse navbar-collapse ${isNavBarShowing ? "show" : ""}`} id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
-                                <Link className={`nav-link ${location==="/" ? 'active': ''}`} aria-current="page" href="/">Home</Link>
+                                <Link className={`nav-link ${location === "/" ? 'active' : ''}`} aria-current="page" href="/">Home</Link>
                             </li>
                             <li className="nav-item">
-                                <Link className={`nav-link ${location==="/products" ? 'active' :''}`} href="/products">Products</Link>
+                                <Link className={`nav-link ${location === "/products" ? 'active' : ''}`} href="/products">Products</Link>
                             </li>
                             <li className="nav-item">
-                                <Link className={`nav-link ${location==='/register' ? 'active' : ''}`} href="/register">Register</Link>
+                                <Link className={`nav-link ${location === '/register' ? 'active' : ''}`} href="/register">Register</Link>
                             </li>
                             <li className="nav-item">
-                                <Link className={`nav-link ${location==='/cart' ? 'active' : ''}`} href="/cart">Cart</Link>
+                                <Link className={`nav-link ${location === '/cart' ? 'active' : ''}`} href="/cart">Cart</Link>
                             </li>
                             <li className="nav-item">
-                            <Link className={`nav-link ${location==='/login' ? 'active' : ''}`} href="/login">Login</Link>
+                                <Link className={`nav-link ${location === '/login' ? 'active' : ''}`} href="/login">Login</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link className={`nav-link ${location === '/profile' ? 'active' : ''}`} href="/profile">Profile</Link>
                             </li>
                         </ul>
                     </div>

@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
+
+// pages import
 import Navbar from './Navbar';
 import HomePage from './HomePage'
 import ProductPage from './ProductPage'
 import RegisterPage from './RegisterPage'
 import ShoppingCart from './ShoppingCart';
+import UserLogin from './LoginComponent';
+import Profile from './Profile';
+
 import { Route, Switch } from 'wouter';
 
 import { useFlashMessage } from './FlashMessageStore';
-import UserLogin from './LoginComponent';
+
 
 export default function App() {
 
@@ -46,6 +51,7 @@ export default function App() {
         <Route path="/register" component={RegisterPage}/>
         <Route path="/cart" component={ShoppingCart}/>
         <Route path="/login" component={UserLogin}/>
+        <Route path="/profile" component={Profile}/>
       </Switch>
 
 
