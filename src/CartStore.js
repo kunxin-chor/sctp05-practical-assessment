@@ -25,35 +25,12 @@ export const useCart = () => {
     const [cart, setCart] = useAtom(cartAtom); // -> one atom is one shared data in Jotai
     const [isLoading, setIsLoading] = useAtom(cartLoadAtom);
     const { getJwt } = useJwt();
-
-    // create a new reference in react; like state it stores value
-    // but when it changed it does not cause a re-render
-    const isInitialLoad = useRef(true); // <-- we are doing the initial loading
     
-
-
     // when the component with the cartStore is mounted for the first time,
     // we will fetch the shopping cart
     useEffect(() => {
         fetchCart();
     }, [])
-
-    //  if the `cart` atom is ever changed, execute
-    // the function in the first parameter
-    useEffect(() => {
-        if (isInitialLoad.current) {
-            isInitialLoad.current = false;
-            console.log("Skip initial update");
-            return;
-        }
-
-        const debounceTimeout = setTimeout(() => {
-            updateCart();
-        }, 500); // Adjust debounce delay as needed
-
-        return () => clearTimeout(debounceTimeout); // Cleanup timeout on unmount or cart changes
-
-    }, [cart])
 
     const fetchCart = async () => {
         // get the JWT so that we know the id of the current logged in user
@@ -73,14 +50,15 @@ export const useCart = () => {
         }
     }
 
-    const updateCart = async () => {
+    // updatedCart contains the latest cart items
+    const updateCart = async (updatedCart) => {
         const jwt = getJwt();
         setIsLoading(true);
         try {
             // .map  will generate the new array
             // which will consist of the elements from the
             // original array but transformed somehow
-            const updatedCartItems = cart.map(item => ({
+            const updatedCartItems = updatedCart.map(item => ({
                 product_id: item.product_id,
                 quantity: item.quantity
             })
@@ -120,13 +98,18 @@ export const useCart = () => {
                 // existing item
                 const modifiedCart = currentCart.setIn([existingItemIndex, 'quantity'], newQuantity);
                 
+                // send the modified cart to our RESTFul API
+                updateCart(modifiedCart);
                 return modifiedCart;
             } else {
                 // new item
-                return currentCart.concat({
+                const modifiedCart =  currentCart.concat({
                     ...product,
                     quantity: 1
                 })
+                updateCart(modifiedCart);
+                return modifiedCart;
+                
             }
         })
     }
@@ -142,13 +125,16 @@ export const useCart = () => {
             if (quantity > 0) {
                 // .setIn will return a modified copy of the original array
                 const modifiedCart = currentCart.setIn([existingItemIndex, "quantity"], quantity);
+                updateCart(modifiedCart);
                 return modifiedCart;
             } else {
                 // 3. If the new quantity is 0
                 // const lhs = currentCart.slice(0,existingItemIndex-1);
                 // const rhs = currentCart.slice(existingItemIndex+1);
                 // return [...lhs, ...rhs];
-                return currentCart.filter(cartItem => cartItem.product_id != product_id);
+                const modifiedCart = currentCart.filter(cartItem => cartItem.product_id != product_id);
+                updateCart(modifiedCart);
+                return modifiedCart;
             }
 
 
