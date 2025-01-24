@@ -4,11 +4,13 @@ import { useJwt } from "./UserStore";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useFlashMessage } from './FlashMessageStore';
 import * as Yup from 'yup';
+import { useLocation } from 'wouter';
 
 export default function Profile() {
     const { getJwt } = useJwt();
     const [initialValues, setInitialValues] = useState({});
     const { showMessage } = useFlashMessage();
+    const [,setLocation] = useLocation();
 
 
     useEffect(() => {
@@ -24,6 +26,17 @@ export default function Profile() {
         fetchData();
 
     }, []);
+
+    const handleDeleteAccount = async () =>{
+        const token = getJwt();
+        await axios.delete(import.meta.env.VITE_API_URL + "/api/users/me",{
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        showMessage("Account has been deleted", "danger");
+        setLocation("/");
+    }
 
     const validationSchema = Yup.object({
         name: Yup.string().required('Required'),
@@ -123,6 +136,8 @@ export default function Profile() {
                     );
                 }}
             </Formik>
+            <h1>Delete Account</h1>
+            <button class="btn btn-danger" onClick={handleDeleteAccount}>Delete Account</button>
         </div>
     )
 }
