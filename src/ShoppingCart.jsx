@@ -12,7 +12,7 @@ export default function ShoppingCart() {
                         <ul className="list-group">
                             {
                                 cart.map(item => (
-                                    <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center">
+                                    <li key={item.product_id} className="list-group-item d-flex justify-content-between align-items-center">
                                         <img src={item.imageUrl}/>
                                         <div>
                                             <h5>{item.productName}</h5>

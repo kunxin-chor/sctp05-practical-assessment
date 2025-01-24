@@ -1,23 +1,21 @@
 import { atom, useAtom } from 'jotai';
 import Immutable from 'seamless-immutable';
+import { useEffect, useRef } from 'react';
+import { useJwt } from './UserStore';
+import axios from 'axios';
 
 // Create an array with seamless-immutable
 // this array now can use functions to add and update without
 // having to manually clone, modify etc. etc.
 const initialCart = Immutable([
-    {
-        "id": 1,
-        "product_id": 1,
-        "quantity": 10,
-        "price": 19.99,
-        "productName": "Organic Green Tea",
-        "imageUrl": "https://picsum.photos/id/225/300/200",
-        "description": "Premium organic green tea leaves, rich in antioxidants and offering a smooth, refreshing taste."
-    }
 ]);
 
 // create an atom for the cart
 export const cartAtom = atom(initialCart);
+
+// keep track of whether the shopping cart is loading
+export const cartLoadAtom = atom(false);
+
 
 // custom hook
 // a custom hook is a way to share functions between components
@@ -25,6 +23,82 @@ export const cartAtom = atom(initialCart);
 // and then share them via custom hooks
 export const useCart = () => {
     const [cart, setCart] = useAtom(cartAtom); // -> one atom is one shared data in Jotai
+    const [isLoading, setIsLoading] = useAtom(cartLoadAtom);
+    const { getJwt } = useJwt();
+
+    // create a new reference in react; like state it stores value
+    // but when it changed it does not cause a re-render
+    const isInitialLoad = useRef(true); // <-- we are doing the initial loading
+    
+
+
+    // when the component with the cartStore is mounted for the first time,
+    // we will fetch the shopping cart
+    useEffect(() => {
+        fetchCart();
+    }, [])
+
+    //  if the `cart` atom is ever changed, execute
+    // the function in the first parameter
+    useEffect(() => {
+        if (isInitialLoad.current) {
+            isInitialLoad.current = false;
+            console.log("Skip initial update");
+            return;
+        }
+
+        const debounceTimeout = setTimeout(() => {
+            updateCart();
+        }, 500); // Adjust debounce delay as needed
+
+        return () => clearTimeout(debounceTimeout); // Cleanup timeout on unmount or cart changes
+
+    }, [cart])
+
+    const fetchCart = async () => {
+        // get the JWT so that we know the id of the current logged in user
+        const jwt = getJwt();
+        setIsLoading(true);
+        try {
+            const response = await axios.get(import.meta.env.VITE_API_URL + '/api/cart', {
+                headers: {
+                    Authorization: 'Bearer ' + jwt
+                }
+            });
+            setCart(Immutable(response.data));
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const updateCart = async () => {
+        const jwt = getJwt();
+        setIsLoading(true);
+        try {
+            // .map  will generate the new array
+            // which will consist of the elements from the
+            // original array but transformed somehow
+            const updatedCartItems = cart.map(item => ({
+                product_id: item.product_id,
+                quantity: item.quantity
+            })
+            );
+            await axios.put(import.meta.env.VITE_API_URL + '/api/cart', {
+                cartItems: updatedCartItems
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + jwt
+                }
+            })
+
+        } catch (e) {
+            console.error("Error updating cart:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
 
     const getCartTotal = () => {
         let total = 0;
@@ -45,6 +119,7 @@ export const useCart = () => {
 
                 // existing item
                 const modifiedCart = currentCart.setIn([existingItemIndex, 'quantity'], newQuantity);
+                
                 return modifiedCart;
             } else {
                 // new item
